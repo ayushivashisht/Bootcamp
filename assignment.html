@@ -1,0 +1,93 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desert VR Game</title>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+</head>
+<body>
+    <a-scene keyboard-shortcuts vr-mode-ui>
+        <!-- Camera -->
+        <a-entity id="camera" camera look-controls wasd-controls position="0 1.6 0"></a-entity>
+      
+        <!-- Desert Environment -->
+        <a-sky color="#eaeaea"></a-sky>
+        <a-plane position="0 0 0" rotation="-90 0 0" width="50" height="50" color="#ffd27f"></a-plane>
+
+        <!-- Cacti and Camels -->
+        <a-entity obj-model="obj: url(models/cactus.obj);" position="-5 0 -5" scale="0.5 0.5 0.5"></a-entity>
+        <a-entity obj-model="obj: url(models/cactus.obj);" position="5 0 -5" scale="0.5 0.5 0.5"></a-entity>
+        <a-entity obj-model="obj: url(models/camel.obj);" position="0 0 -10" scale="0.5 0.5 0.5"></a-entity>
+      
+        <!-- Water (To be randomly placed) -->
+        <a-entity id="water" geometry="primitive: cylinder; radius: 0.3; height: 0.5" material="color: blue" position="2 0 -5"></a-entity>
+
+        <!-- Timer and Score Display -->
+        <a-entity id="timer" position="-2 2 -5" text="value: Time: 60"></a-entity>
+        <a-entity id="score" position="2 2 -5" text="value: Score: 0"></a-entity>
+
+        <!-- Game Over Screen -->
+        <a-entity id="gameOver" position="0 1.5 -4" text="value: Game Over!; visible: false;"></a-entity>
+    </a-scene>
+
+    <script>
+        // Timer
+        let timer = 60;
+        let timerDisplay = document.getElementById('timer');
+
+        setInterval(() => {
+            timer--;
+            timerDisplay.setAttribute('text', 'value', 'Time: ' + timer);
+            if (timer === 0) {
+                // Game Over
+                gameOver();
+            }
+        }, 1000);
+
+        // Score
+        let score = 0;
+        let scoreDisplay = document.getElementById('score');
+
+        // Event listener for collecting water
+        document.getElementById('water').addEventListener('click', () => {
+            score++;
+            scoreDisplay.setAttribute('text', 'value', 'Score: ' + score);
+            // Reposition water randomly
+            let newX = Math.floor(Math.random() * 10) - 5;
+            let newZ = Math.floor(Math.random() * 10) - 5;
+            document.getElementById('water').setAttribute('position', newX + ' 0 ' + newZ);
+        });
+
+        // Game Over function
+        function gameOver() {
+            document.getElementById('gameOver').setAttribute('visible', true);
+            scoreDisplay.setAttribute('text', 'value', 'Final Score: ' + score);
+        }
+
+        // Movement Controls
+        document.addEventListener('keydown', (event) => {
+            const key = event.key;
+            const camera = document.getElementById('camera');
+            let currentPosition = camera.getAttribute('position');
+            let newPosition;
+            switch (key) {
+                case 'ArrowUp':
+                    newPosition = { x: currentPosition.x, y: currentPosition.y, z: currentPosition.z - 0.1 };
+                    break;
+                case 'ArrowDown':
+                    newPosition = { x: currentPosition.x, y: currentPosition.y, z: currentPosition.z + 0.1 };
+                    break;
+                case 'ArrowLeft':
+                    newPosition = { x: currentPosition.x - 0.1, y: currentPosition.y, z: currentPosition.z };
+                    break;
+                case 'ArrowRight':
+                    newPosition = { x: currentPosition.x + 0.1, y: currentPosition.y, z: currentPosition.z };
+                    break;
+                default:
+                    return;
+            }
+            camera.setAttribute('position', newPosition);
+        });
+    </script>
+</body>
+</html>
